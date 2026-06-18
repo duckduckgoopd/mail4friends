@@ -213,22 +213,16 @@
     text-transform: uppercase;
     color: var(--paper);
     background: var(--ink);
-    border: none;
-    padding: 18px 30px;
+    display: inline-block;
+    border: 3px dotted var(--paper);
+    outline: 2.5px solid var(--ink);
+    padding: 17px 34px;
     cursor: pointer;
-    -webkit-mask:
-      radial-gradient(circle 4px at 0 50%, transparent 98%, #000) -4px 0 / 12px 12px repeat-y,
-      radial-gradient(circle 4px at 100% 50%, transparent 98%, #000) calc(100% + 4px) 0 / 12px 12px repeat-y,
-      radial-gradient(circle 4px at 50% 0, transparent 98%, #000) 0 -4px / 12px 12px repeat-x,
-      radial-gradient(circle 4px at 50% 100%, transparent 98%, #000) 0 calc(100% + 4px) / 12px 12px repeat-x,
-      linear-gradient(#000 0 0);
-    -webkit-mask-composite: source-out;
-    mask-composite: subtract;
-    transition: transform 0.08s ease, color 0.15s ease;
+    transition: transform 0.08s ease, background 0.15s ease, outline-color 0.15s ease;
   }
-  .stamp-btn:hover { color: var(--pink); }
+  .stamp-btn:hover { background: var(--pink); outline-color: var(--pink); }
   .stamp-btn:active { transform: translate(1px, 1px); }
-  .stamp-btn:focus-visible { outline: 3px solid var(--blue); outline-offset: 4px; }
+  .stamp-btn:focus-visible { outline-color: var(--blue); box-shadow: 0 0 0 3px var(--blue); }
   .stamp-btn[disabled] { opacity: 0.55; cursor: progress; }
 
   .form-error {
@@ -391,7 +385,7 @@
 <script>
   /* ============================ CONFIG ============================ */
   const CLUB_NAME = "RJ's Print Club";
-  const FORMSPREE_ID = "mzdqloep";   // <-- the bit after /f/ in your Formspree endpoint
+  const FORMSPREE_ID = "PASTE_YOUR_ID_HERE";   // <-- the bit after /f/ in your Formspree endpoint
   /* =============================================================== */
 
   const FORMSPREE_ENDPOINT = "https://formspree.io/f/" + FORMSPREE_ID;
