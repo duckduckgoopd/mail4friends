@@ -1,0 +1,495 @@
+<!--
+  RJ'S PRINT CLUB — membership form (Formspree edition)
+  -----------------------------------------------------
+  SETUP (one-time, ~5 minutes):
+    1. Go to formspree.io and create a free account.
+    2. Create a new form. Copy its form ID — the bit after /f/ in the
+       endpoint it gives you (e.g. for https://formspree.io/f/abcdwxyz the
+       ID is "abcdwxyz").
+    3. Paste that ID into FORMSPREE_ID below, replacing PASTE_YOUR_ID_HERE.
+    4. Host this file (Netlify Drop, GitHub Pages, or any static host) and
+       share that link with your friends.
+
+  Every submission gets emailed to the address on your Formspree account
+  and shows up in your Formspree dashboard (where you can export a CSV or
+  connect a Google Sheet via Formspree's integrations).
+
+  TO RENAME THE CLUB: change CLUB_NAME below.
+-->
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link
+  href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,800&family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap"
+  rel="stylesheet"
+/>
+
+<style>
+  :root {
+    --paper: #ece7d9;
+    --paper-deep: #e2dccb;
+    --line: #c8c0ab;
+    --ink: #211d18;
+    --pink: #ff2e93;
+    --blue: #1f3fd1;
+    --pink-soft: #ffd6ea;
+  }
+
+  * { box-sizing: border-box; }
+
+  html, body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: "Space Mono", monospace;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    background-image: radial-gradient(var(--line) 0.5px, transparent 0.6px);
+    background-size: 6px 6px;
+    opacity: 0.35;
+    mix-blend-mode: multiply;
+  }
+
+  .stage {
+    position: relative;
+    z-index: 1;
+    min-height: 100dvh;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    padding: clamp(16px, 5vw, 56px) clamp(14px, 4vw, 40px) 72px;
+  }
+
+  .card {
+    position: relative;
+    width: 100%;
+    max-width: 660px;
+    background: var(--paper);
+    border: 1.5px solid var(--ink);
+    padding: clamp(26px, 5.5vw, 54px);
+    box-shadow: 7px 9px 0 var(--paper-deep), 7px 9px 0 1.5px var(--ink);
+  }
+
+  .reg {
+    position: absolute;
+    width: 22px;
+    height: 22px;
+    color: var(--blue);
+    opacity: 0.85;
+  }
+  .reg.tl { top: -11px; left: -11px; }
+  .reg.tr { top: -11px; right: -11px; color: var(--pink); }
+  .reg.bl { bottom: -11px; left: -11px; color: var(--pink); }
+  .reg.br { bottom: -11px; right: -11px; }
+
+  .meta-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    font-size: 11px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--blue);
+    border-bottom: 1.5px solid var(--ink);
+    padding-bottom: 12px;
+    margin-bottom: 26px;
+    gap: 12px;
+  }
+  .meta-row .stamp-tag {
+    color: var(--pink);
+    border: 1px solid var(--pink);
+    padding: 2px 7px;
+    border-radius: 2px;
+    white-space: nowrap;
+  }
+
+  .eyebrow {
+    font-size: 12px;
+    letter-spacing: 0.34em;
+    text-transform: uppercase;
+    color: var(--pink);
+    margin: 0 0 14px;
+  }
+
+  .title {
+    position: relative;
+    font-family: "Bricolage Grotesque", sans-serif;
+    font-weight: 800;
+    font-size: clamp(40px, 11vw, 80px);
+    line-height: 0.92;
+    letter-spacing: -0.02em;
+    text-transform: uppercase;
+    margin: 0 0 18px;
+    isolation: isolate;
+  }
+  .title .layer { grid-area: 1 / 1; margin: 0; }
+  .title-grid { display: grid; }
+  .title .ink-blue { color: var(--blue); transform: translate(-2.5px, 2px); mix-blend-mode: multiply; }
+  .title .ink-pink { color: var(--pink); transform: translate(2.5px, -2px); mix-blend-mode: multiply; }
+
+  .lede {
+    max-width: 46ch;
+    font-size: 14px;
+    line-height: 1.65;
+    color: var(--ink);
+    margin: 0 0 34px;
+  }
+  .lede b { color: var(--blue); font-weight: 700; }
+
+  .field { margin-bottom: 26px; }
+  .field > label,
+  .field > .field-label {
+    display: block;
+    font-size: 12px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    margin-bottom: 9px;
+    color: var(--ink);
+  }
+  .field .num { color: var(--blue); font-weight: 700; margin-right: 8px; }
+  .field .hint { color: var(--line); text-transform: none; letter-spacing: 0.04em; }
+
+  input, textarea, select {
+    width: 100%;
+    font-family: "Space Mono", monospace;
+    font-size: 16px;
+    color: var(--ink);
+    background: transparent;
+    border: none;
+    border-bottom: 1.5px solid var(--line);
+    padding: 8px 2px;
+    border-radius: 0;
+    transition: border-color 0.15s ease, background 0.15s ease;
+  }
+  textarea { resize: vertical; min-height: 70px; line-height: 1.5; }
+  input::placeholder, textarea::placeholder { color: #b6ad97; }
+
+  input:focus, textarea:focus, select:focus {
+    outline: none;
+    border-bottom-color: var(--pink);
+    background: linear-gradient(transparent 62%, var(--pink-soft) 62%);
+  }
+  .field.invalid input,
+  .field.invalid textarea { border-bottom-color: var(--pink); }
+  .err {
+    display: none;
+    font-size: 11px;
+    color: var(--pink);
+    margin-top: 7px;
+    letter-spacing: 0.04em;
+  }
+  .field.invalid .err { display: block; }
+
+  .bday { display: flex; gap: 14px; flex-wrap: wrap; }
+  .bday > div { flex: 1 1 120px; }
+  .bday > div:nth-child(2) { flex: 0 1 92px; }
+  .bday > div:nth-child(3) { flex: 0 1 110px; }
+  .bday .field-label { font-size: 10px; letter-spacing: 0.12em; color: var(--line); }
+  select {
+    appearance: none;
+    background-image: linear-gradient(45deg, transparent 50%, var(--blue) 50%),
+                      linear-gradient(135deg, var(--blue) 50%, transparent 50%);
+    background-position: right 6px center, right 1px center;
+    background-size: 6px 6px, 6px 6px;
+    background-repeat: no-repeat;
+    cursor: pointer;
+  }
+
+  .send-row { margin-top: 38px; }
+  .stamp-btn {
+    position: relative;
+    font-family: "Bricolage Grotesque", sans-serif;
+    font-weight: 800;
+    font-size: 17px;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--paper);
+    background: var(--ink);
+    border: none;
+    padding: 18px 30px;
+    cursor: pointer;
+    -webkit-mask:
+      radial-gradient(circle 4px at 0 50%, transparent 98%, #000) -4px 0 / 12px 12px repeat-y,
+      radial-gradient(circle 4px at 100% 50%, transparent 98%, #000) calc(100% + 4px) 0 / 12px 12px repeat-y,
+      radial-gradient(circle 4px at 50% 0, transparent 98%, #000) 0 -4px / 12px 12px repeat-x,
+      radial-gradient(circle 4px at 50% 100%, transparent 98%, #000) 0 calc(100% + 4px) / 12px 12px repeat-x,
+      linear-gradient(#000 0 0);
+    -webkit-mask-composite: source-out;
+    mask-composite: subtract;
+    transition: transform 0.08s ease, color 0.15s ease;
+  }
+  .stamp-btn:hover { color: var(--pink); }
+  .stamp-btn:active { transform: translate(1px, 1px); }
+  .stamp-btn:focus-visible { outline: 3px solid var(--blue); outline-offset: 4px; }
+  .stamp-btn[disabled] { opacity: 0.55; cursor: progress; }
+
+  .form-error {
+    display: none;
+    margin-top: 16px;
+    font-size: 12px;
+    line-height: 1.55;
+    letter-spacing: 0.03em;
+    color: var(--pink);
+    border-left: 2px solid var(--pink);
+    padding-left: 10px;
+  }
+  .form-error.show { display: block; }
+
+  .done { text-align: center; padding: 12px 0 6px; }
+  .postmark { width: 190px; height: 190px; margin: 6px auto 24px; }
+  .done h2 {
+    font-family: "Bricolage Grotesque", sans-serif;
+    font-weight: 800;
+    font-size: clamp(30px, 8vw, 46px);
+    text-transform: uppercase;
+    letter-spacing: -0.01em;
+    margin: 0 0 12px;
+    color: var(--blue);
+  }
+  .done p { font-size: 14px; line-height: 1.6; margin: 0 auto 8px; max-width: 42ch; }
+  .ghost-btn {
+    margin-top: 22px;
+    font-family: "Space Mono", monospace;
+    font-size: 12px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    background: none;
+    border: none;
+    border-bottom: 1.5px solid var(--blue);
+    color: var(--blue);
+    padding: 4px 2px;
+    cursor: pointer;
+  }
+  .ghost-btn:hover { color: var(--pink); border-bottom-color: var(--pink); }
+
+  .hidden { display: none !important; }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .card { animation: rise 0.5s cubic-bezier(.2,.7,.2,1) both; }
+    .postmark { animation: thunk 0.45s cubic-bezier(.3,1.4,.4,1) both; }
+    @keyframes rise { from { opacity: 0; transform: translateY(14px); } }
+    @keyframes thunk { 0% { opacity: 0; transform: scale(1.5) rotate(-14deg); } 100% { opacity: 1; transform: scale(1) rotate(-7deg); } }
+  }
+</style>
+
+<div class="stage">
+  <div class="card" id="card">
+    <span class="reg tl">&#8853;</span><span class="reg tr">&#8853;</span>
+    <span class="reg bl">&#8853;</span><span class="reg br">&#8853;</span>
+
+    <!-- ===================== FORM VIEW ===================== -->
+    <div id="formView">
+      <div class="meta-row">
+        <span>Est. 2026 &middot; Members only</span>
+        <span class="stamp-tag">Fill &amp; return</span>
+      </div>
+
+      <p class="eyebrow">Membership application</p>
+      <h1 class="title">
+        <span class="title-grid">
+          <span class="layer ink-blue" data-title></span>
+          <span class="layer ink-pink" data-title></span>
+        </span>
+      </h1>
+
+      <p class="lede">
+        I want to share <b>letters and prints</b> with the people I love.
+        Please fill out the following information.
+      </p>
+
+      <div class="field" id="f-name">
+        <label for="name"><span class="num">01</span>Your name</label>
+        <input id="name" type="text" autocomplete="name" placeholder="first and last" />
+        <p class="err">I need a name to print on the envelope.</p>
+      </div>
+
+      <div class="field" id="f-partner">
+        <label for="partner"><span class="num">02</span>Partner's name <span class="hint">&mdash; if any</span></label>
+        <input id="partner" type="text" autocomplete="off" placeholder="leave blank if it's just you" />
+      </div>
+
+      <div class="field" id="f-address">
+        <label for="address"><span class="num">03</span>Where to mail it</label>
+        <textarea id="address" autocomplete="street-address" placeholder="street, city, state/region, postcode, country"></textarea>
+        <p class="err">No address, no mail &mdash; pop your full mailing address here.</p>
+      </div>
+
+      <div class="field" id="f-email">
+        <label for="email"><span class="num">04</span>Email</label>
+        <input id="email" type="email" autocomplete="email" placeholder="you@example.com" />
+        <p class="err">That email doesn't look right.</p>
+      </div>
+
+      <div class="field" id="f-bday">
+        <span class="field-label"><span class="num">05</span>Birthday <span class="hint">&mdash; so I can surprise you</span></span>
+        <div class="bday">
+          <div>
+            <span class="field-label">Month</span>
+            <select id="bmonth">
+              <option value="">&mdash;</option>
+              <option>January</option><option>February</option><option>March</option>
+              <option>April</option><option>May</option><option>June</option>
+              <option>July</option><option>August</option><option>September</option>
+              <option>October</option><option>November</option><option>December</option>
+            </select>
+          </div>
+          <div>
+            <span class="field-label">Day</span>
+            <input id="bday" type="number" min="1" max="31" placeholder="&mdash;" />
+          </div>
+          <div>
+            <span class="field-label">Year <span style="text-transform:none">(opt.)</span></span>
+            <input id="byear" type="number" min="1900" max="2025" placeholder="&mdash;" />
+          </div>
+        </div>
+        <p class="err" id="bday-err" style="display:none">Pick a month and a day.</p>
+      </div>
+
+      <div class="send-row">
+        <button class="stamp-btn" id="submitBtn">Stamp &amp; send &rarr;</button>
+        <p class="form-error" id="formError"></p>
+      </div>
+    </div>
+
+    <!-- ===================== CONFIRMATION VIEW ===================== -->
+    <div id="doneView" class="done hidden">
+      <svg class="postmark" viewBox="0 0 200 200" aria-hidden="true">
+        <defs>
+          <path id="ring" d="M100,100 m-66,0 a66,66 0 1,1 132,0 a66,66 0 1,1 -132,0" />
+        </defs>
+        <circle cx="100" cy="100" r="78" fill="none" stroke="var(--pink)" stroke-width="2"/>
+        <circle cx="100" cy="100" r="68" fill="none" stroke="var(--pink)" stroke-width="1"/>
+        <text font-family="Space Mono, monospace" font-size="13" letter-spacing="3"
+              fill="var(--pink)" font-weight="700">
+          <textPath href="#ring" startOffset="0%" data-postmark></textPath>
+        </text>
+        <text x="100" y="94" text-anchor="middle" font-family="Bricolage Grotesque, sans-serif"
+              font-weight="800" font-size="20" fill="var(--pink)" data-pm-year>2026</text>
+        <text x="100" y="116" text-anchor="middle" font-family="Space Mono, monospace"
+              font-size="10" letter-spacing="2" fill="var(--pink)">POSTED</text>
+        <g stroke="var(--pink)" stroke-width="2" fill="none">
+          <path d="M22,150 q14,-8 28,0 t28,0 t28,0 t28,0 t28,0"/>
+          <path d="M22,160 q14,-8 28,0 t28,0 t28,0 t28,0 t28,0"/>
+        </g>
+      </svg>
+      <h2>You're on the list.</h2>
+      <p>Your card is posted &mdash; letters and prints will start landing in your mailbox.</p>
+      <p style="color:#8d8472">Welcome to the club.</p>
+      <button class="ghost-btn" id="addAnother">Add another member &rarr;</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  /* ============================ CONFIG ============================ */
+  const CLUB_NAME = "RJ's Print Club";
+  const FORMSPREE_ID = "mzdqloep";   // <-- the bit after /f/ in your Formspree endpoint
+  /* =============================================================== */
+
+  const FORMSPREE_ENDPOINT = "https://formspree.io/f/" + FORMSPREE_ID;
+
+  document.title = CLUB_NAME;
+  document.querySelectorAll("[data-title]").forEach(el => el.textContent = CLUB_NAME);
+  document.querySelector("[data-postmark]").textContent =
+    " \u2605 " + CLUB_NAME.toUpperCase() + " \u2605 MEMBER ";
+
+  const $ = id => document.getElementById(id);
+  const formView = $("formView"), doneView = $("doneView");
+
+  function validEmail(v) { return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v); }
+  function showFormError(msg) { const e = $("formError"); e.textContent = msg; e.classList.add("show"); }
+  function clearFormError() { $("formError").classList.remove("show"); }
+  function resetBtn() { const b = $("submitBtn"); b.disabled = false; b.innerHTML = "Stamp &amp; send &rarr;"; }
+
+  $("submitBtn").addEventListener("click", async () => {
+    clearFormError();
+    const name = $("name").value.trim();
+    const partner = $("partner").value.trim();
+    const address = $("address").value.trim();
+    const email = $("email").value.trim();
+    const bmonth = $("bmonth").value;
+    const bday = $("bday").value.trim();
+    const byear = $("byear").value.trim();
+
+    let ok = true;
+    $("f-name").classList.toggle("invalid", !name);          ok = ok && !!name;
+    $("f-address").classList.toggle("invalid", !address);    ok = ok && !!address;
+    $("f-email").classList.toggle("invalid", !validEmail(email)); ok = ok && validEmail(email);
+    const bdayBad = !bmonth || !bday;
+    $("f-bday").classList.toggle("invalid", bdayBad);
+    $("bday-err").style.display = bdayBad ? "block" : "none";
+    ok = ok && !bdayBad;
+
+    if (!ok) {
+      const first = document.querySelector(".field.invalid");
+      if (first) first.scrollIntoView({ behavior: "smooth", block: "center" });
+      return;
+    }
+
+    if (FORMSPREE_ID === "mzdqloep") {
+      showFormError("Almost there: open this file and paste your Formspree form ID into the CONFIG block, then re-upload it. Until then, submissions can't be saved.");
+      return;
+    }
+
+    const btn = $("submitBtn");
+    btn.disabled = true;
+    btn.textContent = "Posting\u2026";
+
+    const birthday = byear ? (bmonth + " " + bday + ", " + byear) : (bmonth + " " + bday);
+    const payload = {
+      name: name,
+      partner: partner || "(none)",
+      address: address,
+      email: email,
+      birthday: birthday,
+      _subject: "New " + CLUB_NAME + " member: " + name
+    };
+
+    try {
+      const res = await fetch(FORMSPREE_ENDPOINT, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "Accept": "application/json" },
+        body: JSON.stringify(payload)
+      });
+
+      if (res.ok) {
+        document.querySelector("[data-pm-year]").textContent = new Date().getFullYear();
+        formView.classList.add("hidden");
+        doneView.classList.remove("hidden");
+        $("card").scrollIntoView({ behavior: "smooth", block: "start" });
+        return;
+      }
+
+      if (res.status === 429) {
+        showFormError("Lots of sign-ups coming in right now \u2014 wait a moment and send again.");
+      } else {
+        const data = await res.json().catch(() => ({}));
+        const detail = (data && data.errors && data.errors[0] && data.errors[0].message) ? data.errors[0].message : "";
+        showFormError("Couldn't post that card" + (detail ? (" \u2014 " + detail) : " \u2014 please try again in a moment") + ".");
+      }
+      resetBtn();
+    } catch (e) {
+      showFormError("Couldn't reach the post office \u2014 check your connection and try again.");
+      resetBtn();
+    }
+  });
+
+  $("addAnother").addEventListener("click", () => {
+    ["name","partner","address","email","bday","byear"].forEach(id => $(id).value = "");
+    $("bmonth").value = "";
+    document.querySelectorAll(".field.invalid").forEach(f => f.classList.remove("invalid"));
+    $("bday-err").style.display = "none";
+    clearFormError();
+    resetBtn();
+    doneView.classList.add("hidden");
+    formView.classList.remove("hidden");
+  });
+</script>
