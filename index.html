@@ -385,10 +385,19 @@
 <script>
   /* ============================ CONFIG ============================ */
   const CLUB_NAME = "RJ's Print Club";
-  const FORMSPREE_ID = "PASTE_YOUR_ID_HERE";   // <-- the bit after /f/ in your Formspree endpoint
+  const FORMSPREE_ID = "mzdqloep";   // <-- the 8-character ID after /f/ in your Formspree endpoint
   /* =============================================================== */
 
-  const FORMSPREE_ENDPOINT = "https://formspree.io/f/" + FORMSPREE_ID;
+  // Forgiving: works whether you paste the bare ID ("abcdwxyz"),
+  // the full endpoint ("https://formspree.io/f/abcdwxyz"), or "/f/abcdwxyz".
+  const FORMSPREE_HASHID = FORMSPREE_ID
+    .trim()
+    .replace(/^["']|["']$/g, "")
+    .replace(/^https?:\/\/formspree\.io\//i, "")
+    .replace(/^\/?f\//i, "")
+    .replace(/\/+$/, "")
+    .trim();
+  const FORMSPREE_ENDPOINT = "https://formspree.io/f/" + FORMSPREE_HASHID;
 
   document.title = CLUB_NAME;
   document.querySelectorAll("[data-title]").forEach(el => el.textContent = CLUB_NAME);
@@ -428,7 +437,7 @@
       return;
     }
 
-    if (FORMSPREE_ID === "mzdqloep") {
+    if (FORMSPREE_ID === "PASTE_YOUR_ID_HERE") {
       showFormError("Almost there: open this file and paste your Formspree form ID into the CONFIG block, then re-upload it. Until then, submissions can't be saved.");
       return;
     }
@@ -464,6 +473,8 @@
 
       if (res.status === 429) {
         showFormError("Lots of sign-ups coming in right now \u2014 wait a moment and send again.");
+      } else if (res.status === 404) {
+        showFormError("This form isn't connected yet (Formspree couldn't find ID \"" + FORMSPREE_HASHID + "\"). Double-check that it exactly matches the 8-character ID in your Formspree dashboard, then re-upload this file.");
       } else {
         const data = await res.json().catch(() => ({}));
         const detail = (data && data.errors && data.errors[0] && data.errors[0].message) ? data.errors[0].message : "";
